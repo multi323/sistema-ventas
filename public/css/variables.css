@@ -1,0 +1,24 @@
+:root {
+  --primary: #00ff88;
+  --secondary: #ff006e;
+  --accent: #00d9ff;
+  --dark: #0a0e27;
+  --darker: #050812;
+  --light: #f0f0f0;
+  --success: #00ff88;
+  --warning: #ffa500;
+  --danger: #ff006e;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: var(--dark);
+  color: var(--light);
+  line-height: 1.6;
+}
