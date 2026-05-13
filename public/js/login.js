@@ -1,171 +1,167 @@
-// Elementos del DOM
-const loginForm = document.getElementById('loginForm');
-const registerForm = document.getElementById('registerForm');
-const loginEmail = document.getElementById('loginEmail');
-const loginPassword = document.getElementById('loginPassword');
-const rememberPassword = document.getElementById('rememberPassword');
-const rememberEmail = document.getElementById('rememberEmail');
-const registerEmail = document.getElementById('registerEmail');
-const registerPassword = document.getElementById('registerPassword');
-const businessName = document.getElementById('businessName');
-const errorMessage = document.getElementById('errorMessage');
-const tabBtns = document.querySelectorAll('.tab-btn');
-const formSections = document.querySelectorAll('.form-section');
+// Estado de la aplicación
+let isLogin = true; // true = login, false = registro
+let rememberMe = false;
 
-// API URL
-const API_URL = 'http://localhost:3000/api';
-
-// TABS
-tabBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-        const tabName = btn.dataset.tab;
-        
-        // Deactivar todos los tabs
-        tabBtns.forEach(b => b.classList.remove('active'));
-        formSections.forEach(f => f.classList.remove('active'));
-        
-        // Activar el tab seleccionado
-        btn.classList.add('active');
-        document.getElementById(`${tabName}Form`).classList.add('active');
-        
-        // Limpiar errores
-        hideError();
-    });
+// Cargar credenciales guardadas
+window.addEventListener('DOMContentLoaded', () => {
+  const savedEmail = localStorage.getItem('savedEmail');
+  const savedPassword = localStorage.getItem('savedPassword');
+  
+  if (savedEmail) {
+    document.getElementById('loginEmail').value = savedEmail;
+    document.getElementById('rememberPassword').checked = true;
+  }
+  
+  if (savedPassword) {
+    document.getElementById('loginPassword').value = savedPassword;
+  }
 });
 
-// Cargar datos guardados al abrir
-window.addEventListener('load', () => {
-    const savedEmail = localStorage.getItem('tilio_email');
-    const savedPassword = localStorage.getItem('tilio_password');
-    
-    if (savedEmail) {
-        loginEmail.value = savedEmail;
-        rememberEmail.checked = true;
-    }
-    
-    if (savedPassword) {
-        loginPassword.value = savedPassword;
-        rememberPassword.checked = true;
-    }
-});
+// Alternar entre Login y Registro
+function toggleForm() {
+  isLogin = !isLogin;
+  const loginForm = document.getElementById('loginForm');
+  const registerForm = document.getElementById('registerForm');
+  const loginBtn = document.querySelector('[data-form="login"]');
+  const registerBtn = document.querySelector('[data-form="register"]');
+  
+  if (isLogin) {
+    loginForm.style.display = 'block';
+    registerForm.style.display = 'none';
+    loginBtn.classList.add('active');
+    registerBtn.classList.remove('active');
+  } else {
+    loginForm.style.display = 'none';
+    registerForm.style.display = 'block';
+    loginBtn.classList.remove('active');
+    registerBtn.classList.add('active');
+  }
+}
 
 // LOGIN
-loginForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
+async function handleLogin(e) {
+  e.preventDefault();
+  
+  const email = document.getElementById('loginEmail').value;
+  const password = document.getElementById('loginPassword').value;
+  const remember = document.getElementById('rememberPassword').checked;
+  
+  if (!email || !password) {
+    showAlert('Por favor completa todos los campos', 'danger');
+    return;
+  }
+  
+  try {
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
     
-    const email = loginEmail.value.trim();
-    const password = loginPassword.value;
+    const data = await response.json();
     
-    if (!email || !password) {
-        showError('Por favor completa todos los campos');
-        return;
+    if (!response.ok) {
+      showAlert(data.error || 'Error al iniciar sesión', 'danger');
+      return;
     }
     
-    try {
-        const response = await fetch(`${API_URL}/auth/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
-        });
-        
-        const data = await response.json();
-        
-        if (!response.ok) {
-            showError(data.error || 'Error al iniciar sesión');
-            return;
-        }
-        
-        // Guardar token
-        localStorage.setItem('tilio_token', data.token);
-        localStorage.setItem('tilio_user', JSON.stringify(data.user));
-        
-        // Guardar credenciales si está marcado
-        if (rememberEmail.checked) {
-            localStorage.setItem('tilio_email', email);
-        } else {
-            localStorage.removeItem('tilio_email');
-        }
-        
-        if (rememberPassword.checked) {
-            localStorage.setItem('tilio_password', password);
-        } else {
-            localStorage.removeItem('tilio_password');
-        }
-        
-        // Redirigir al dashboard
-        setTimeout(() => {
-            window.location.href = '/dashboard.html';
-        }, 500);
-        
-    } catch (err) {
-        showError('Error de conexión: ' + err.message);
+    // Guardar token y datos del usuario
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('user', JSON.stringify(data.user));
+    
+    // Guardar credenciales si lo desea
+    if (remember) {
+      localStorage.setItem('savedEmail', email);
+      localStorage.setItem('savedPassword', password);
+    } else {
+      localStorage.removeItem('savedEmail');
+      localStorage.removeItem('savedPassword');
     }
-});
+    
+    showAlert('¡Bienvenido! Redirigiendo...', 'success');
+    setTimeout(() => {
+      window.location.href = '/dashboard.html';
+    }, 1000);
+  } catch (error) {
+    showAlert('Error de conexión: ' + error.message, 'danger');
+  }
+}
 
 // REGISTRO
-registerForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
+async function handleRegister(e) {
+  e.preventDefault();
+  
+  const email = document.getElementById('registerEmail').value;
+  const password = document.getElementById('registerPassword').value;
+  const businessName = document.getElementById('businessName').value;
+  const confirmPassword = document.getElementById('confirmPassword').value;
+  
+  if (!email || !password || !businessName || !confirmPassword) {
+    showAlert('Por favor completa todos los campos', 'danger');
+    return;
+  }
+  
+  if (password !== confirmPassword) {
+    showAlert('Las contraseñas no coinciden', 'danger');
+    return;
+  }
+  
+  if (password.length < 6) {
+    showAlert('La contraseña debe tener al menos 6 caracteres', 'danger');
+    return;
+  }
+  
+  try {
+    const response = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, businessName })
+    });
     
-    const email = registerEmail.value.trim();
-    const password = registerPassword.value;
-    const business = businessName.value.trim();
+    const data = await response.json();
     
-    if (!email || !password || !business) {
-        showError('Por favor completa todos los campos');
-        return;
+    if (!response.ok) {
+      showAlert(data.error || 'Error al registrar', 'danger');
+      return;
     }
     
-    if (password.length < 6) {
-        showError('La contraseña debe tener al menos 6 caracteres');
-        return;
-    }
+    showAlert('¡Registro exitoso! Ahora inicia sesión', 'success');
     
-    try {
-        const response = await fetch(`${API_URL}/auth/register`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password, businessName: business })
-        });
-        
-        const data = await response.json();
-        
-        if (!response.ok) {
-            showError(data.error || 'Error al registrarse');
-            return;
-        }
-        
-        // Guardar token
-        localStorage.setItem('tilio_token', data.token);
-        localStorage.setItem('tilio_user', JSON.stringify(data.user));
-        
-        // Mostrar mensaje de éxito
-        showSuccess('✅ Cuenta creada exitosamente. Redirigiendo...');
-        
-        // Redirigir al dashboard
-        setTimeout(() => {
-            window.location.href = '/dashboard.html';
-        }, 1500);
-        
-    } catch (err) {
-        showError('Error de conexión: ' + err.message);
-    }
-});
-
-// Funciones auxiliares
-function showError(msg) {
-    errorMessage.textContent = msg;
-    errorMessage.classList.add('show');
-    errorMessage.style.background = '#ff4444';
-    errorMessage.style.color = 'white';
+    // Limpiar formulario
+    document.getElementById('registerForm').reset();
+    
+    // Cambiar a login
+    setTimeout(() => {
+      isLogin = true;
+      document.getElementById('loginForm').style.display = 'block';
+      document.getElementById('registerForm').style.display = 'none';
+      document.getElementById('loginEmail').value = email;
+    }, 1500);
+  } catch (error) {
+    showAlert('Error de conexión: ' + error.message, 'danger');
+  }
 }
 
-function showSuccess(msg) {
-    errorMessage.textContent = msg;
-    errorMessage.classList.add('show');
-    errorMessage.style.background = '#00ff88';
-    errorMessage.style.color = '#000';
+// Mostrar alertas
+function showAlert(message, type = 'info') {
+  // Crear elemento de alerta
+  const alert = document.createElement('div');
+  alert.className = `alert alert-${type}`;
+  alert.innerHTML = `
+    <span>${message}</span>
+  `;
+  
+  // Agregar al DOM
+  const container = document.body.appendChild(alert);
+  
+  // Auto-remover después de 3 segundos
+  setTimeout(() => {
+    alert.remove();
+  }, 3000);
 }
 
-function hideError() {
-    errorMessage.classList.remove('show');
+// Google Login (placeholder)
+function loginWithGoogle() {
+  showAlert('Google login será implementado próximamente', 'warning');
+  // Aquí irá la integración real con Google
 }
