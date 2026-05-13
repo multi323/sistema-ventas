@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menú - Pedir en Línea</title>
+    <link rel="stylesheet" href="styles/cliente.css">
+</head>
+<body>
+    <div class="cliente-header">
+        <div class="header-content">
+            <div class="logo-section">
+                <img id="logo" class="logo" src="https://via.placeholder.com/50" alt="Logo">
+                <div>
+                    <h1 id="nombreNegocio">Mi Restaurante</h1>
+                    <p id="estadoNegocio" class="estado-abierto">🟢 Abierto</p>
+                </div>
+            </div>
+            
+            <div class="header-actions">
+                <input type="text" id="buscar" class="buscar-productos" placeholder="🔍 Buscar...">
+                <button class="btn-carrito">
+                    🛒 Carrito <span class="carrito-count">0</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="cliente-container">
+        <div class="categorias-sidebar">
+            <h3>Categorías</h3>
+            <div class="categorias-list" id="categoriasList">
+                <!-- Se llena dinámicamente -->
+            </div>
+        </div>
+
+        <div class="productos-section">
+            <div class="productos-grid" id="productosGrid">
+                <!-- Se llena dinámicamente -->
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-carrito">
+        <div class="carrito-content">
+            <div class="carrito-header">
+                <h2>Mi Carrito</h2>
+                <button class="btn-cerrar-carrito">✕</button>
+            </div>
+            
+            <div class="carrito-items" id="carritoItems">
+                <!-- Items del carrito -->
+            </div>
+            
+            <div class="carrito-resumen">
+                <div class="resumen-row">
+                    <span>Subtotal:</span>
+                    <span id="subtotal">$0.00</span>
+                </div>
+                <div class="resumen-row total">
+                    <span>Total:</span>
+                    <span id="total">$0.00</span>
+                </div>
+            </div>
+            
+            <button class="btn-proceder-pago">Proceder al Pago</button>
+        </div>
+    </div>
+
+    <script src="js/cliente.js"></script>
+</body>
+</html>
