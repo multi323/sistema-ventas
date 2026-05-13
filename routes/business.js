@@ -1,97 +1,91 @@
 const express = require('express');
-const { run, get } = require('../database');
 const router = express.Router();
-const jwt = require('jsonwebtoken');
+const { verifyToken } = require('./auth');
+const db = require('../database');
 
-const SECRET_KEY = 'tilio-secret-key-2026';
-
-const verifyToken = (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
-  if (!token) return res.status(401).json({ error: 'No autorizado' });
-  try {
-    const decoded = jwt.verify(token, SECRET_KEY);
-    req.userId = decoded.id;
-    next();
-  } catch (err) {
-    res.status(401).json({ error: 'Token inválido' });
-  }
-};
-
-// Obtener información del negocio
 router.get('/info', verifyToken, async (req, res) => {
   try {
-    const business = await get(`SELECT * FROM users WHERE id = ?`, [req.userId]);
-    res.json({ success: true, business });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    const business = await db.get('SELECT * FROM users WHERE id = ?', [req.userId]);
+    res.json(business);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 
-// Actualizar información
 router.put('/info', verifyToken, async (req, res) => {
   try {
-    const {
-      businessName,
-      businessPhone,
-      businessAddress,
-      businessLogo,
-      openTime,
-      closeTime,
-      currency,
-      businessColors
-    } = req.body;
+    const { businessName, businessPhone, businessAddress, openTime, closeTime, currency, businessLogo, businessColors } = req.body;
+    
+    await db.run(
+      `UPDATE users SET businessName = ?, businessPhone = ?, businessAddress = ?, openTime = ?, closeTime = ?, currency = ?, businessLogo = ?, businessColors = ? WHERE id = ?`,
+      [businessName, businessPhone, businessAddress, openTime, closeTime, currency, businessLogo, JSON.stringify(businessColors), req.userId]
+    );
 
-    const sql = `
-      UPDATE users SET 
-        businessName = ?, 
-        businessPhone = ?, 
-        businessAddress = ?, 
-        businessLogo = ?, 
-        openTime = ?, 
-        closeTime = ?, 
-        currency = ?,
-        businessColors = ?,
-        updatedAt = CURRENT_TIMESTAMP
-      WHERE id = ?
-    `;
-
-    await run(sql, [
-      businessName,
-      businessPhone,
-      businessAddress,
-      businessLogo,
-      openTime,
-      closeTime,
-      currency,
-      JSON.stringify(businessColors),
-      req.userId
-    ]);
-
-    res.json({ success: true, message: 'Negocio actualizado correctamente' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.json({ message: 'Información actualizada' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 
-// Cambiar contraseña
-router.post('/change-password', verifyToken, async (req, res) => {
+router.get('/stats', verifyToken, async (req, res) => {
   try {
-    const { oldPassword, newPassword } = req.body;
-    const bcrypt = require('bcryptjs');
+    const { startDate, endDate } = req.query;
+    
+    let query = `
+      SELECT 
+        COUNT(*) as totalOrders,
+        SUM(CASE WHEN status = 'entregado' THEN totalAmount ELSE 0 END) as totalRevenue,
+        AVG(totalAmount) as averageOrder
+      FROM orders
+      WHERE userId = ?
+    `;
+    let params = [req.userId];
 
-    const user = await get(`SELECT password FROM users WHERE id = ?`, [req.userId]);
-    const validPassword = await bcrypt.compare(oldPassword, user.password);
-
-    if (!validPassword) {
-      return res.status(401).json({ error: 'Contraseña actual incorrecta' });
+    if (startDate && endDate) {
+      query += ` AND createdAt BETWEEN ? AND ?`;
+      params.push(startDate, endDate);
     }
 
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    await run(`UPDATE users SET password = ? WHERE id = ?`, [hashedPassword, req.userId]);
+    const stats = await db.get(query, params);
+    res.json(stats);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
-    res.json({ success: true, message: 'Contraseña actualizada' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+router.get('/notifications', verifyToken, async (req, res) => {
+  try {
+    const notifications = await db.all(
+      `SELECT * FROM notifications WHERE userId = ? ORDER BY createdAt DESC LIMIT 20`,
+      [req.userId]
+    );
+    res.json(notifications);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.put('/notifications/:id', verifyToken, async (req, res) => {
+  try {
+    await db.run(
+      `UPDATE notifications SET read = 1 WHERE id = ? AND userId = ?`,
+      [req.params.id, req.userId]
+    );
+    res.json({ message: 'Notificación actualizada' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get('/sessions', verifyToken, async (req, res) => {
+  try {
+    const sessions = await db.all(
+      `SELECT * FROM sessions WHERE userId = ? ORDER BY loginTime DESC`,
+      [req.userId]
+    );
+    res.json(sessions);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 
