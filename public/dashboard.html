@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Tilio</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <div class="dashboard">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="logo-mini">T</div>
+                <h3>TILIO</h3>
+            </div>
+
+            <nav class="sidebar-menu">
+                <a href="#" class="menu-item active" data-page="home">
+                    <span class="icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="menu-item" data-page="orders">
+                    <span class="icon">📋</span>
+                    <span>Tablero Pedidos</span>
+                </a>
+                <a href="#" class="menu-item" data-page="menu">
+                    <span class="icon">🍽️</span>
+                    <span>Gestión Menú</span>
+                </a>
+                <a href="#" class="menu-item" data-page="kitchen">
+                    <span class="icon">👨‍🍳</span>
+                    <span>Cocina</span>
+                </a>
+                <a href="#" class="menu-item" data-page="delivery">
+                    <span class="icon">🚚</span>
+                    <span>Delivery</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="logout-btn">🚪 Cerrar Sesión</button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <!-- TOP BAR -->
+            <div class="topbar">
+                <div class="topbar-left">
+                    <button class="menu-toggle" id="menuToggle">☰</button>
+                    <h1 id="pageTitle">Dashboard</h1>
+                </div>
+
+                <div class="topbar-right">
+                    <!-- Notificaciones -->
+                    <div class="notification-bell">
+                        <button id="notificationBtn">🔔</button>
+                        <span class="badge" id="notificationBadge">0</span>
+                        <div class="notification-dropdown" id="notificationDropdown">
+                            <div class="notification-header">Notificaciones</div>
+                            <div class="notification-list" id="notificationList">
+                                <p>Sin notificaciones</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Perfil -->
+                    <div class="user-profile">
+                        <img id="userLogo" src="https://via.placeholder.com/40" alt="Logo">
+                        <div class="user-info">
+                            <p id="businessName">Negocio</p>
+                            <small id="userEmail">email@example.com</small>
+                        </div>
+                        <button id="profileBtn" class="profile-btn">⚙️</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE CONTENT -->
+            <div class="page-content">
+                <!-- HOME PAGE -->
+                <div class="page" id="homePage">
+                    <div class="stats-grid">
+                        <!-- Pedidos Hoy -->
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <h3>Pedidos Hoy</h3>
+                                <button class="filter-btn" data-stat="orders">📅</button>
+                            </div>
+                            <div class="stat-value">
+                                <span id="ordersToday">0</span>
+                                <small>pedidos</small>
+                            </div>
+                            <button class="view-btn" data-action="view-orders">Ver Detalles →</button>
+                        </div>
+
+                        <!-- Ingresos Hoy -->
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <h3>Ingresos Hoy</h3>
+                                <button class="filter-btn" data-stat="revenue">📅</button>
+                            </div>
+                            <div class="stat-value">
+                                <span id="revenueToday">$0</span>
+                                <small>vendidos</small>
+                            </div>
+                            <button class="view-btn" data-action="view-revenue">Ver Detalles →</button>
+                        </div>
+
+                        <!-- Total Pedidos -->
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <h3>Total Pedidos</h3>
+                                <button class="filter-btn" data-stat="total">📅</button>
+                            </div>
+                            <div class="stat-value">
+                                <span id="totalOrders">0</span>
+                                <small>todos los tiempos</small>
+                            </div>
+                            <button class="view-btn" data-action="view-all">Ver Detalles →</button>
+                        </div>
+                    </div>
+
+                    <!-- PEDIDOS RECIENTES -->
+                    <div class="recent-orders">
+                        <div class="section-header">
+                            <h2>📦 Pedidos Recientes</h2>
+                            <button id="refreshBtn">🔄 Actualizar</button>
+                        </div>
+                        <div class="orders-list" id="recentOrdersList">
+                            <p class="empty">Sin pedidos aún</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ORDERS PAGE -->
+                <div class="page" id="ordersPage">
+                    <div class="orders-header">
+                        <h2>📋 Tablero de Pedidos</h2>
+                        <div class="order-filters">
+                            <button class="filter-tag active" data-status="">Todos</button>
+                            <button class="filter-tag" data-status="pendiente">⏳ Pendientes</button>
+                            <button class="filter-tag" data-status="preparacion">🍳 Preparación</button>
+                            <button class="filter-tag" data-status="enviado">🚚 Enviado</button>
+                            <button class="filter-tag" data-status="entregado">✅ Entregado</button>
+                            <button class="filter-tag" data-status="cancelado">❌ Cancelado</button>
+                        </div>
+                    </div>
+                    <div class="kanban-board" id="kanbanBoard"></div>
+                </div>
+
+                <!-- MENU PAGE -->
+                <div class="page" id="menuPage">
+                    <div class="menu-tabs">
+                        <button class="menu-tab active" data-menu-tab="info">ℹ️ Información</button>
+                        <button class="menu-tab" data-menu-tab="carta">📖 Mi Carta</button>
+                        <button class="menu-tab" data-menu-tab="categories">📂 Categorías</button>
+                        <button class="menu-tab" data-menu-tab="products">🍽️ Productos</button>
+                        <button class="menu-tab" data-menu-tab="payments">💳 Métodos Pago</button>
+                        <button class="menu-tab" data-menu-tab="tables">🪑 Mesas</button>
+                    </div>
+
+                    <!-- INFO TAB -->
+                    <div class="menu-section active" id="infoTab">
+                        <h3>Información del Negocio</h3>
+                        <form id="businessForm">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Logo</label>
+                                    <input type="file" id="logoInput" accept="image/*">
+                                    <img id="logoPreview" src="" style="max-width: 100px; margin-top: 10px;">
+                                </div>
+                                <div class="form-group">
+                                    <label>Nombre Negocio</label>
+                                    <input type="text" id="businessNameInput" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Teléfono</label>
+                                    <input type="tel" id="businessPhoneInput">
+                                </div>
+                                <div class="form-group">
+                                    <label>Dirección</label>
+                                    <input type="text" id="businessAddressInput">
+                                </div>
+                                <div class="form-group">
+                                    <label>Hora Apertura</label>
+                                    <input type="time" id="openTimeInput">
+                                </div>
+                                <div class="form-group">
+                                    <label>Hora Cierre</label>
+                                    <input type="time" id="closeTimeInput">
+                                </div>
+                                <div class="form-group">
+                                    <label>Moneda</label>
+                                    <select id="currencyInput">
+                                        <option value="COP">COP ($)</option>
+                                        <option value="USD">USD ($)</option>
+                                        <option value="EUR">EUR (€)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn-primary">💾 Guardar Cambios</button>
+                        </form>
+                        <button id="changePasswordBtn" class="btn-secondary" style="margin-top: 20px;">🔑 Cambiar Contraseña</button>
+                    </div>
+
+                    <!-- CARTA TAB -->
+                    <div class="menu-section" id="cartaTab">
+                        <h3>Mi Carta Virtual</h3>
+                        <div class="carta-config">
+                            <div class="form-group">
+                                <label>Color Principal</label>
+                                <input type="color" id="primaryColor" value="#00ff88">
+                            </div>
+                            <div class="form-group">
+                                <label>Color Secundario</label>
+                                <input type="color" id="secondaryColor" value="#00ffff">
+                            </div>
+                            <div class="form-group">
+                                <label>Imagen de Portada</label>
+                                <input type="file" id="coverImageInput" accept="image/*">
+                            </div>
+                            <div class="carta-preview" id="cartaPreview"></div>
+                        </div>
+                        <div class="carta-link">
+                            <input type="text" id="cartaLink" readonly>
+                            <button id="copyCarta">📋 Copiar Enlace</button>
+                        </div>
+                    </div>
+
+                    <!-- CATEGORIES TAB -->
+                    <div class="menu-section" id="categoriesTab">
+                        <h3>Categorías de Productos</h3>
+                        <button id="addCategoryBtn" class="btn-primary">➕ Agregar Categoría</button>
+                        <div class="categories-list" id="categoriesList"></div>
+                    </div>
+
+                    <!-- PRODUCTS TAB -->
+                    <div class="menu-section" id="productsTab">
+                        <h3>Productos</h3>
+                        <button id="addProductBtn" class="btn-primary">➕ Agregar Producto</button>
+                        <div class="products-list" id="productsList"></div>
+                    </div>
+
+                    <!-- PAYMENTS TAB -->
+                    <div class="menu-section" id="paymentsTab">
+                        <h3>Métodos de Pago</h3>
+                        <button id="addPaymentBtn" class="btn-primary">➕ Agregar Método</button>
+                        <div class="payments-list" id="paymentsList"></div>
+                    </div>
+
+                    <!-- TABLES TAB -->
+                    <div class="menu-section" id="tablesTab">
+                        <h3>Mesas del Negocio</h3>
+                        <button id="addTableBtn" class="btn-primary">➕ Agregar Mesa</button>
+                        <div class="tables-grid" id="tablesGrid"></div>
+                    </div>
+                </div>
+
+                <!-- KITCHEN PAGE -->
+                <div class="page" id="kitchenPage">
+                    <h2>👨‍🍳 Comandas de Cocina</h2>
+                    <div class="kitchen-board" id="kitchenBoard"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODALS -->
+    <div class="modal" id="profileModal">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h2>⚙️ Configuración de Perfil</h2>
+                <button class="close-btn" onclick="closeModal('profileModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="profileForm">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="profileEmail" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre del Negocio</label>
+                        <input type="text" id="profileBusinessName">
+                    </div>
+                    <button type="submit" class="btn-primary">💾 Guardar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- PASSWORD MODAL -->
+    <div class="modal" id="passwordModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🔑 Cambiar Contraseña</h2>
+                <button class="close-btn" onclick="closeModal('passwordModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="passwordForm">
+                    <div class="form-group">
+                        <label>Contraseña Actual</label>
+                        <input type="password" id="oldPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nueva Contraseña</label>
+                        <input type="password" id="newPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirmar Contraseña</label>
+                        <input type="password" id="confirmPassword" required>
+                    </div>
+                    <button type="submit" class="btn-primary">Cambiar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
