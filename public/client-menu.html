@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Carta - Tilio</title>
+    <link rel="stylesheet" href="css/client-menu.css">
+</head>
+<body>
+    <div class="client-menu">
+        <!-- HEADER -->
+        <header class="menu-header">
+            <div class="header-content">
+                <img id="shopLogo" src="" alt="Logo">
+                <h1 id="shopName">Cargando...</h1>
+            </div>
+        </header>
+
+        <!-- CONTENT -->
+        <main class="menu-main">
+            <!-- CATEGORIES -->
+            <nav class="categories-nav" id="categoriesNav"></nav>
+
+            <!-- PRODUCTS GRID -->
+            <div class="products-grid" id="productsGrid"></div>
+        </main>
+
+        <!-- CART SIDEBAR -->
+        <aside class="cart-sidebar">
+            <div class="cart-header">
+                <h2>🛒 Carrito</h2>
+                <span class="cart-count" id="cartCount">0</span>
+            </div>
+            
+            <div class="cart-items" id="cartItems">
+                <p class="empty">Sin productos</p>
+            </div>
+
+            <div class="cart-total">
+                <span>Total:</span>
+                <span id="cartTotal">$0</span>
+            </div>
+
+            <button class="btn-checkout" id="checkoutBtn">Realizar Pedido</button>
+        </aside>
+
+        <!-- CHECKOUT MODAL -->
+        <div class="modal" id="checkoutModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>📝 Información de Entrega</h2>
+                    <button class="close-btn" onclick="closeCheckout()">&times;</button>
+                </div>
+                <form id="checkoutForm" class="modal-body">
+                    <div class="form-group">
+                        <label>Nombre</label>
+                        <input type="text" id="clientName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Número WhatsApp</label>
+                        <input type="tel" id="clientPhone" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>¿Necesita domicilio?</label>
+                        <select id="deliveryNeeded" onchange="toggleAddress()">
+                            <option value="1">Sí, enviar a domicilio</option>
+                            <option value="0">No, paso a recoger</option>
+                        </select>
+                    </div>
+
+                    <div id="addressGroup" class="form-group">
+                        <label>Dirección de Entrega</label>
+                        <input type="text" id="deliveryAddress" placeholder="Calle # Apto">
+                        <div class="location-btn">
+                            <button type="button" onclick="getLocation()">📍 Mi ubicación</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Notas (opcional)</label>
+                        <textarea id="notes" placeholder="Sin salsa, con tomate..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Método de Pago</label>
+                        <select id="paymentMethod" required></select>
+                    </div>
+
+                    <div class="order-summary">
+                        <h3>Resumen del Pedido</h3>
+                        <div id="orderSummary"></div>
+                        <div class="summary-total">
+                            <strong>Total: $<span id="summaryTotal">0</span></strong>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary">✅ Confirmar Pedido</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/client-menu.js"></script>
+</body>
+</html>
